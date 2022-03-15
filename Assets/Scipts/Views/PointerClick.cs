@@ -13,6 +13,7 @@ namespace kiksAr.EcommerceFilter.Views
         private Color c = new Color();
         private Image im;
         private int parentIndex;
+        public Text details;
 
 
         void Start()
@@ -20,6 +21,9 @@ namespace kiksAr.EcommerceFilter.Views
             im = this.gameObject.GetComponent<Image>();
             c = im.color;
             parentIndex = this.transform.parent.GetSiblingIndex();
+            details = this.transform.GetChild(0).GetComponent<Text>();
+          //  Debug.Log(details.text);
+
         }    
 
         public void OnPointerClick( PointerEventData eventData )
@@ -41,6 +45,7 @@ namespace kiksAr.EcommerceFilter.Views
                     im.color = Color.blue;
                     UIObjectPooler.uIObjectPoolerInstance.AddToSelectedList(this.gameObject);
                     UIObjectPooler.uIObjectPoolerInstance.selectedlistValues.Add(im, parentIndex);
+                    UIObjectPooler.uIObjectPoolerInstance.ShowItemDetailsOnClick(details);
                     Debug.Log( "Clicked!" ); 
                     selected = true;
 

@@ -8,8 +8,13 @@ namespace kiksAr.EcommerceFilter.Controllers
 {
     public class DropdownController : MonoBehaviour
     {
+        public static DropdownController dropdownControllerInstance;
         [SerializeField] private TMP_Dropdown dropdownCategory;
         [SerializeField] private TMP_Dropdown dropdownGender;
+        [SerializeField] private Button mainButtonGender;
+        [SerializeField] private TMP_Text mainTextGender;
+        [SerializeField] private Transform optionsGender;
+        private List<Button> genderButtons = new List<Button>();
 
         private List<string> itemCategories = new List<string>{"Clothes", "Watches", "Jewellery"};
         private List<string> genderCategories = new List<string>{"Men", "Woman", "Kids"};
@@ -33,31 +38,52 @@ namespace kiksAr.EcommerceFilter.Controllers
 
         private void Awake()
         {
+            dropdownControllerInstance = this;
         
             dropdownCategory.options.Clear();
-            dropdownGender.options.Clear();
+        //    dropdownGender.options.Clear();
 
             dropdownCategory.onValueChanged.AddListener(delegate { ValueChangedOnDropdown(dropdownCategory,gender); });
-             dropdownGender.onValueChanged.AddListener(delegate { ValueChangedOnDropdownGender(dropdownGender); });
+            mainButtonGender.onClick.AddListener(() => ValueChangedOnDropdownGender());
+           //  dropdownGender.onValueChanged.AddListener(delegate { ValueChangedOnDropdownGender(); });
             foreach(var item in itemCategories)
             {
                 dropdownCategory.options.Add(new TMP_Dropdown.OptionData(){text = item});
             }
-            foreach(var item in genderCategories)
+            for(int i =0; i < genderCategories.Count; i++)
             {
-                dropdownGender.options.Add(new TMP_Dropdown.OptionData(){text = item});
-            }
+                // dropdownGender.options.Add(new TMP_Dropdown.OptionData(){text = item});
+                genderButtons.Add(optionsGender.GetChild(i).GetComponent<Button>());
+                optionsGender.GetChild(i).GetChild(0).GetComponent<TMP_Text>().text = genderCategories[i];
 
+            }
+         
 
 
         }
-
-        private void ValueChangedOnDropdownGender(TMP_Dropdown dropdownGender)
+        void Start()
         {
-            int value = dropdownGender.value;
+            mainTextGender.text = optionsGender.GetChild(0).GetChild(0).GetComponent<TMP_Text>().text;
+        }
+
+        private void ValueChangedOnDropdownGender()
+        {
+            if(!optionsGender.transform.parent.gameObject.activeInHierarchy)
+
+                 optionsGender.transform.parent.gameObject.SetActive(true);
+            else
+                optionsGender.transform.parent.gameObject.SetActive(false);
+        //     int value = dropdownGender.value;
 
 
-           UIObjectPooler.uIObjectPoolerInstance.ArrangeItemsByGender(dropdownGender.options[value].text);
+        //    UIObjectPooler.uIObjectPoolerInstance.ArrangeItemsByGender(dropdownGender.options[value].text);
+
+
+        }
+        public void OnOptionsClickGender(string gender, bool open)
+        {
+            UIObjectPooler.uIObjectPoolerInstance.ArrangeItemsByGender(gender,open);
+             optionsGender.transform.parent.gameObject.SetActive(false);
 
 
         }

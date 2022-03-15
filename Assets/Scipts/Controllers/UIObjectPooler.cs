@@ -40,9 +40,13 @@ namespace kiksAr.EcommerceFilter.Controllers
         [SerializeField] private Transform selectedListTranfrom;
         [SerializeField] private ScrollRect scrollRect;
         [SerializeField] private Text text;
+        [SerializeField] private Text showingText;
+        public List<string> genderObjects = new List<string>();
+        public List<GameObject> selectedGenderObjects = new List<GameObject>();
 
 
         public bool transferred;
+        private int dropdownCount;
        
 
         private void Awake()
@@ -51,7 +55,7 @@ namespace kiksAr.EcommerceFilter.Controllers
             GetCategories();
             applyFilter.onClick.AddListener(ApplyFilter);
             resetFilter.onClick.AddListener(ResetFilter);
-            closeButton.onClick.AddListener(ApplicationQuit);
+            closeButton.onClick.AddListener(OnCloseButtonIemdetails);
             selectedCategory = 0;
             if(!enableLogs) Debug.unityLogger.logEnabled = false;
             else Debug.unityLogger.logEnabled = true;
@@ -74,8 +78,8 @@ namespace kiksAr.EcommerceFilter.Controllers
                     im.color = color[k];
                     item.AddComponent<PointerClick>();
                     items[k].Add(item);
-                    Instantiate(text, rect);
-                    text.text = item.tag;
+                    Text t = Instantiate(text, rect);
+                    t.text = item.tag;
 
 
                 }
@@ -129,28 +133,54 @@ namespace kiksAr.EcommerceFilter.Controllers
             }
               selectedListTranfrom.parent.gameObject.SetActive(false);
             selectedList.Clear();
+            ArrangeItemsByCategory(selectedCategory, dropdownCount);
+
 
         }
 #endregion
 
 #region Arranging Items on value Selected
     
-        public void ArrangeItemsByGender(string gender)
+        public void ArrangeItemsByGender(string gender, bool open)
         {
              transferred = false;
             selectedListTranfrom.parent.gameObject.SetActive(false);
+            selectedGenderObjects.Clear();
+            if(open)
+                genderObjects.Add(gender);
+            else
+                genderObjects.Remove(gender);
+                
+            foreach(string gen in genderObjects)
+            {
+                for(int i = 0; i < items[selectedCategory].Count; i++)
+                {
+                    if(items[selectedCategory][i].tag.Contains(gen))
+                    {
+                        selectedGenderObjects.Add(items[selectedCategory][i]);
+                          
+                    }
+                    
+                 
+                    
+
+
+                }
+            }
             for(int i = 0; i < items[selectedCategory].Count; i++)
             {
-                if(items[selectedCategory][i].tag.Contains(gender))
+                if(selectedGenderObjects .Contains(items[selectedCategory][i]))
                 {
                     items[selectedCategory][i].SetActive(true);
+                      
                 }
                 else
                 {
                      items[selectedCategory][i].SetActive(false);
                 }
-
+                
             }
+
 
 
         }
@@ -159,7 +189,8 @@ namespace kiksAr.EcommerceFilter.Controllers
             transferred = false;
             selectedListTranfrom.parent.gameObject.SetActive(false);
             selectedCategory = value;
-            for(int i = 0; i < count; i++)
+            dropdownCount = count;
+            for(int i = 0; i < dropdownCount; i++)
             {
                 if(i == value)
                 {
@@ -182,6 +213,20 @@ namespace kiksAr.EcommerceFilter.Controllers
 
         }
 #endregion
+
+        public void ShowItemDetailsOnClick(Text text)
+        {
+            showingText.text = text.text;
+            showingText.gameObject.transform.parent.gameObject.SetActive(true);
+          
+        }
+
+        public void OnCloseButtonIemdetails()
+        {
+              showingText.transform.parent.gameObject.SetActive(false);
+             showingText.text = "";
+          
+        }
 
         private void ApplicationQuit()
         {
